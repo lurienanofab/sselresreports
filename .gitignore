@@ -1,0 +1,11 @@
+.vs/
+bin/
+obj/
+packages/
+TestResults/
+*.suo
+*.user
+[wW]eb.config
+[wW]eb.*.config
+[aA]pp.config
+!Views/[wW]eb.config
