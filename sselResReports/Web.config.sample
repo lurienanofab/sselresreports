@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  For more information on how to configure your ASP.NET application, please visit
+  http://go.microsoft.com/fwlink/?LinkId=169433
+  -->
+<configuration>
+    <configSections>
+        <sectionGroup name="lnf">
+            <section name="providers" type="LNF.ProvidersSection, LNF"/>
+        </sectionGroup>
+    </configSections>
+
+    <lnf>
+        <providers production="false">
+            <context type="LNF.Impl.WebContextProvider, LNF.Impl" loginUrl="/login"/>
+            <dataAccess type="LNF.Impl.NHibernateDataAccess, LNF.Impl"/>
+            <serialization type="LNF.Impl.Serialization.SerializationProvider, LNF.Impl"/>
+            <physicalAccess type="LNF.Impl.PhysicalAccess.ProwatchPhysicalAccess, LNF.Impl"/>
+            <encryption type="LNF.Impl.EncryptionProvider, LNF.Impl"/>
+            <email type="LNF.Impl.Email.EmailProvider, LNF.Impl" host="127.0.0.1"/>
+            <control type="LNF.Impl.Control.Wago.WagoControl, LNF.Impl" host="net.tcp://127.0.0.1:7779/WagoService"/>
+            <log type="LNF.Impl.Logging.ServiceLogProvider, LNF.Impl" name="sselResReports" enabled="true"/>
+        </providers>
+    </lnf>
+
+    <appSettings>
+        <add key="ApiHost" value="*****"/>
+        <add key="BasicAuthUsername" value="*****"/>
+        <add key="BasicAuthPassword" value="*****"/>
+        <add key="as:AudienceId" value="*****"/>
+        <add key="as:AudienceSecret" value="*****"/>
+        <add key="ShowMenu" value="false"/>
+        <add key="MongoConnectionString" value="*****" />
+        <add key="owin:AutomaticAppStartup" value="false"/>
+    </appSettings>
+
+    <connectionStrings>
+        <add name="cnSselData" providerName="System.Data.SqlClient" connectionString="*****"/>
+        <add name="cnSselControl" providerName="System.Data.SqlClient" connectionString="*****"/>
+        <add name="cnSselScheduler" providerName="System.Data.SqlClient" connectionString="*****"/>
+        <add name="cnProwatch" providerName="System.Data.SqlClient" connectionString="*****"/>
+    </connectionStrings>
+
+    <system.web>
+        <httpRuntime targetFramework="4.6.1"/>
+        <compilation debug="true" targetFramework="4.6.1"/>
+
+        <pages controlRenderingCompatibilityVersion="4.0">
+            <controls>
+                <add tagPrefix="lnf" assembly="LNF.Web" namespace="LNF.Web.Controls"/>
+            </controls>
+        </pages>
+
+        <authentication mode="Forms">
+            <forms name="sselAuth.cookie" path="/" loginUrl="/login" timeout="480" protection="All" slidingExpiration="true" cookieless="UseCookies" domain="umich.edu"/>
+        </authentication>
+
+        <authorization>
+            <deny users="?"/>
+        </authorization>
+
+        <machineKey compatibilityMode="Framework20SP2" validationKey="*****" decryptionKey="*****" validation="SHA1" decryption="3DES"/>
+
+        <customErrors mode="Off"/>
+    </system.web>
+
+    <system.webServer>
+        <modules runAllManagedModulesForAllRequests="false">
+            <add name="LnfSessionModule" type="LNF.Impl.SessionModule" preCondition="managedHandler"/>
+        </modules>
+        <handlers>
+            <remove name="ExtensionlessUrlHandler-ISAPI-4.0_32bit"/>
+            <remove name="ExtensionlessUrlHandler-ISAPI-4.0_64bit"/>
+            <remove name="ExtensionlessUrlHandler-Integrated-4.0"/>
+        </handlers>
+    </system.webServer>
+
+    <location path="RSS.ashx">
+        <system.web>
+            <authorization>
+                <allow users="*"/>
+            </authorization>
+        </system.web>
+    </location>
+
+    <location path="rss">
+        <system.web>
+            <authorization>
+                <allow users="*"/>
+            </authorization>
+        </system.web>
+    </location>
+</configuration>

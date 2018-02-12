@@ -1,0 +1,29 @@
+﻿<%@ Master Language="C#" AutoEventWireup="true" CodeBehind="ResReportsMaster.master.cs" Inherits="sselResReports.ResReportsMaster" %>
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head runat="server">
+    <title>LNF Resource Reports</title>
+   
+    <link rel="stylesheet" href="//ssel-apps.eecs.umich.edu/common/styles/theme/default.css" />
+    <link rel="stylesheet" href="//ssel-apps.eecs.umich.edu/common/scripts/jquery/DataTables-1.10.9/media/css/jquery.dataTables.min.css" />
+    <link rel="stylesheet" href="//ssel-apps.eecs.umich.edu/common/styles/datatables.css" />
+
+    <script src="//ssel-apps.eecs.umich.edu/common/scripts/jquery/jquery-1.11.0.min.js"></script>
+    <script src="//ssel-apps.eecs.umich.edu/common/scripts/jquery/DataTables-1.10.9/media/js/jquery.dataTables.min.js"></script>
+
+    <asp:ContentPlaceHolder ID="head" runat="server">
+    </asp:ContentPlaceHolder>
+</head>
+<body>
+    <form id="form1" runat="server">
+    <div>
+        <asp:ContentPlaceHolder ID="ContentPlaceHolder1" runat="server">
+        </asp:ContentPlaceHolder>
+    </div>
+    </form>
+    <asp:ContentPlaceHolder ID="scripts" runat="server">
+    </asp:ContentPlaceHolder>
+</body>
+</html>
