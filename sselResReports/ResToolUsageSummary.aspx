@@ -54,6 +54,13 @@
                         <span style="color: #bbbbbb;">&larr; You must click here to retrieve the data</span><br />
                     </td>
                 </tr>
+                <tr>
+                    <td colspan="2">
+                        <button type="button" class="report-button" onclick="window.location='/reports/dispatch/all-tool-usage-summary?returnTo=/sselresreports/ResToolUsageSummary.aspx'">
+                            Run Report For All Tools
+                        </button>
+                    </td>
+                </tr>
             </table>
             <div class="criteria-item">
                 <asp:LinkButton runat="server" ID="btnBack" Text="&larr; Back to Main Page" OnClick="BackButton_Click" CssClass="back-link"></asp:LinkButton>
@@ -348,7 +355,7 @@
             </SelectParameters>
         </asp:ObjectDataSource>
 
-        <asp:HiddenField  runat="server"  ID="hidVarAccountTypes" Value="1,2,3" />
+        <asp:HiddenField runat="server" ID="hidVarAccountTypes" Value="1,2,3" />
 
     </div>
 </asp:Content>
