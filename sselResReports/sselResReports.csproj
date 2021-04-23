@@ -119,6 +119,9 @@
     <None Include="Properties\PublishProfiles\ResReports.pubxml" />
     <Content Include="rss\inlab\index.ashx" />
     <Content Include="RSS.ashx" />
+    <Content Include="room-names.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

@@ -1,12 +1,14 @@
 ﻿using LNF.Data;
 using LNF.Impl.Repository.Billing;
 using LNF.Impl.Repository.Data;
+using Newtonsoft.Json;
 using sselResReports.AppCode;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
+using System.IO;
 using System.Linq;
 using System.Web.UI.WebControls;
 
@@ -21,7 +23,7 @@ namespace sselResReports
             get { return ClientPrivilege.Staff | ClientPrivilege.Executive | ClientPrivilege.Administrator; }
         }
 
-        protected void Page_Load(Object sender, EventArgs e)
+        protected void Page_Load(object sender, EventArgs e)
         {
             if (!CurrentUser.HasPriv(AuthTypes))
             {
@@ -91,7 +93,9 @@ namespace sselResReports
 
             Room room = DataSession.Query<Room>().FirstOrDefault(x => x.RoomID == int.Parse(ddlRoom.SelectedValue));
 
-            RoomDataImport[] query = DataSession.Query<RoomDataImport>().Where(x => x.EventDate >= sDate && x.EventDate < eDate && x.RoomName == room.RoomName).ToArray();
+            string[] rooms = GetRoomNames(room);
+
+            RoomDataImport[] query = DataSession.Query<RoomDataImport>().Where(x => x.EventDate >= sDate && x.EventDate < eDate && rooms.Contains(x.RoomName)).ToArray();
 
             //this is used to handle cases where they entered before the start date
             Dictionary<int, DateTime> entries = new Dictionary<int, DateTime>();
@@ -222,6 +226,17 @@ namespace sselResReports
             dgInLab.DataBind();
         }
 
+        private string[] GetRoomNames(Room room)
+        {
+            var config = GetRoomNamesConfig();
+            var item = config.Items.FirstOrDefault(x => x.RoomID == room.RoomID);
+
+            if (item != null)
+                return item.Names;
+            else
+                return new[] { room.RoomName };
+        }
+
         protected void DgInLab_ItemDataBound(object sender, DataGridItemEventArgs e)
         {
             if (e.Item.ItemType == ListItemType.Item || e.Item.ItemType == ListItemType.AlternatingItem)
@@ -247,5 +262,28 @@ namespace sselResReports
         {
             ShowUsersInLab();
         }
+
+        private RoomNamesConfig GetRoomNamesConfig()
+        {
+            string configPath = Path.Combine(Server.MapPath("."), "room-names.json");
+            var json = File.ReadAllText(configPath);
+            var result = JsonConvert.DeserializeObject<RoomNamesConfig>(json);
+            return result;
+        }
+    }
+
+    class RoomNamesConfig
+    {
+        [JsonProperty("items")]
+        public IEnumerable<RoomNameItem> Items { get; set; }
+    }
+
+    class RoomNameItem
+    {
+        [JsonProperty("roomId")]
+        public int RoomID { get; set; }
+
+        [JsonProperty("names")]
+        public string[] Names { get; set; }
     }
 }
