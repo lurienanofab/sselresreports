@@ -28,7 +28,7 @@
                 </tr>
             </table>
             <div class="criteria-item">
-                <asp:Button runat="server" ID="btnReport" Text="Retrieve Data" OnClick="btnReport_Click" CssClass="report-button" />
+                <asp:Button runat="server" ID="btnReport" Text="Retrieve Data" OnClick="BtnReport_Click" CssClass="report-button" />
             </div>
             <div class="criteria-item">
                 <asp:LinkButton runat="server" ID="btnBack" Text="&larr; Back to Main Page" OnClick="BackButton_Click" CssClass="back-link"></asp:LinkButton>

@@ -1,16 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using System.Web.UI;
-using System.Web.UI.WebControls;
-using System.Configuration;
-using System.Data;
-using LNF.Repository;
-using LNF.CommonTools;
+﻿using LNF.Data;
 using sselResReports.AppCode;
 using sselResReports.AppCode.DAL;
-using LNF.Models.Data;
+using System;
+using System.Collections.Generic;
 
 namespace sselResReports
 {
@@ -32,14 +24,10 @@ namespace sselResReports
 
             if (!Page.IsPostBack)
             {
-                using (var dba = DA.Current.GetAdapter())
+                using (var reader = DataCommand().Param("Action", "PassbackRooms").ExecuteReader("dbo.Room_Select"))
                 {
-                    dba.AddParameter("@Action", "PassbackRooms");
-                    using (var reader = dba.ExecuteReader("Room_Select"))
-                    {
-                        ddlRoom.DataSource = reader;
-                        ddlRoom.DataBind();
-                    }
+                    ddlRoom.DataSource = reader;
+                    ddlRoom.DataBind();
                 }
 
                 LoadData();
@@ -56,12 +44,12 @@ namespace sselResReports
             rptUsers.DataBind();
         }
 
-        protected void btnReport_Click(object sender, EventArgs e)
+        protected void BtnReport_Click(object sender, EventArgs e)
         {
             LoadData();
         }
 
-        protected void ddlRoom_SelectedIndexChanged(object sender, EventArgs e)
+        protected void DdlRoom_SelectedIndexChanged(object sender, EventArgs e)
         {
             LoadData();
         }

@@ -112,8 +112,8 @@
                     </tr>
                 </table>
                 <div class="criteria-item">
-                    <asp:Button ID="btnReport" runat="server" OnClick="btnReport_Click" Text="Retrieve Data" CssClass="report-button" />
-                    <asp:Button ID="btnExport" runat="server" OnClick="btnExport_Click" Text="Export" CssClass="report-button" />
+                    <asp:Button ID="btnReport" runat="server" OnClick="BtnReport_Click" Text="Retrieve Data" CssClass="report-button" />
+                    <asp:Button ID="btnExport" runat="server" OnClick="BtnExport_Click" Text="Export" CssClass="report-button" />
                 </div>
                 <div class="criteria-item">
                     <asp:LinkButton runat="server" ID="btnBack" Text="&larr; Back to Main Page" OnClick="BackButton_Click" CssClass="back-link"></asp:LinkButton>
@@ -122,7 +122,7 @@
             <hr />
         </div>
         <div class="section tool-utilization-report-container">
-            <asp:Repeater runat="server" ID="rptToolUtilizationReport" OnItemDataBound="rptToolUtilizationReport_ItemDataBound">
+            <asp:Repeater runat="server" ID="rptToolUtilizationReport" OnItemDataBound="RptToolUtilizationReport_ItemDataBound">
                 <HeaderTemplate>
                     <table class="tool-utilization-report">
                         <thead>

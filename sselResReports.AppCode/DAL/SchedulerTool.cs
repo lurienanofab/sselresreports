@@ -1,5 +1,4 @@
-﻿using LNF.CommonTools;
-using LNF.Repository;
+﻿using LNF.Repository;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -10,16 +9,19 @@ namespace sselResReports.AppCode.DAL
 {
     public static class SchedulerTool
     {
-        public static IDataReader GetAllToolsFromScheduler()
+        public static ExecuteReaderResult GetAllToolsFromScheduler()
         {
-            SQLDBAccess dba = new SQLDBAccess("cnSselData");
-            return dba.ApplyParameters(new { Action = "AllResources" }).ExecuteReader("sselScheduler_Select");
+            var reader = DataCommand.Create()
+                .Param("Action", "AllResources")
+                .ExecuteReader("dbo.sselScheduler_Select");
+
+            return reader;
         }
 
         public static IEnumerable<ListItem> GetToolSelectItems(bool includeSelectItem = false)
         {
             List<ListItem> result = new List<ListItem>();
-            using (IDataReader reader = SchedulerTool.GetAllToolsFromScheduler())
+            using (var reader = GetAllToolsFromScheduler())
             {
                 while (reader.Read())
                     result.Add(new ListItem(reader["ResourceName"].ToString(), reader["ResourceID"].ToString()));
@@ -33,8 +35,11 @@ namespace sselResReports.AppCode.DAL
 
         public static DataTable GetFutureToolStatus()
         {
-            using (SQLDBAccess dba = new SQLDBAccess("cnSselScheduler"))
-                return dba.ApplyParameters(new { Action = "SelectFutureToolStatus" }).FillDataTable("procReservationSelect");
+            var dt = DataCommand.Create()
+                .Param("Action", "SelectFutureToolStatus")
+                .FillDataTable("sselScheduler.dbo.procReservationSelect");
+
+            return dt;
         }
 
         public static DataTable GetReservationsByClientID(int year, int month, int clientId)
@@ -42,15 +47,14 @@ namespace sselResReports.AppCode.DAL
             DateTime sDate = new DateTime(year, month, 1);
             DateTime eDate = sDate.AddMonths(1);
 
-            using (SQLDBAccess dba = new SQLDBAccess("cnSselData"))
-            {
-                dba.SelectCommand
-                    .AddParameter("@Action", "ReservationByClientID")
-                    .AddParameter("@sDate", sDate)
-                    .AddParameter("@eDate", eDate)
-                    .AddParameter("@ClientID", clientId);
-                return dba.FillDataTable("sselScheduler_Select");
-            }
+            var dt = DataCommand.Create()
+                .Param("@Action", "ReservationByClientID")
+                .Param("@sDate", sDate)
+                .Param("@eDate", eDate)
+                .Param("@ClientID", clientId)
+                .FillDataTable("dbo.sselScheduler_Select");
+
+            return dt;
         }
     }
 }

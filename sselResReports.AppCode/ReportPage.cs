@@ -1,14 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Web;
-using System.Web.UI.WebControls;
-using Newtonsoft.Json;
+﻿using LNF.Impl.Repository.Data;
 using LNF.Web;
 using LNF.Web.Content;
-using LNF.Repository;
-using LNF.Repository.Data;
+using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web.UI.WebControls;
 
 namespace sselResReports.AppCode
 {
@@ -26,9 +23,9 @@ namespace sselResReports.AppCode
             WebUtility.BindYearData(ddl, startYear);
         }
 
-        public static void CreateAccountCheckList(CheckBoxList cblAccountType)
+        public void CreateAccountCheckList(CheckBoxList cblAccountType)
         {
-            AccountType[] allAccountTypes = DA.Current.Query<AccountType>().ToArray();
+            AccountType[] allAccountTypes = DataSession.Query<AccountType>().ToArray();
             cblAccountType.DataSource = allAccountTypes.Select(x => new ListItem { Text = x.AccountTypeName, Value = x.AccountTypeID.ToString() });
             cblAccountType.DataBind();
         }

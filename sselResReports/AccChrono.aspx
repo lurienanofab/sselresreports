@@ -43,7 +43,7 @@
                     </tr>
                 </table>
                 <div class="criteria-item">
-                    <asp:Button runat="server" ID="btnReport" Text="Retrieve Data" OnClick="btnReport_Click" CssClass="report-button" />
+                    <asp:Button runat="server" ID="btnReport" Text="Retrieve Data" OnClick="BtnReport_Click" CssClass="report-button" />
                     <asp:Label ID="lblMsg" runat="server" ForeColor="Red" Visible="false"></asp:Label>
                 </div>
                 <div class="criteria-item">
@@ -55,7 +55,7 @@
             <table class="chrono-room-access-report">
                 <tr>
                     <td>
-                        <asp:DataGrid ID="dgInLab" runat="server" AutoGenerateColumns="false" OnItemDataBound="dgInLab_ItemDataBound">
+                        <asp:DataGrid ID="dgInLab" runat="server" AutoGenerateColumns="false" OnItemDataBound="DgInLab_ItemDataBound">
                             <HeaderStyle Font-Bold="true" BackColor="#E0E0E0" />
                             <Columns>
                                 <asp:BoundColumn DataField="EvtTime" HeaderText="Time" DataFormatString="{0: h:mm tt, d MMMM yyyy}">

@@ -1,5 +1,6 @@
-﻿using LNF.CommonTools;
-using LNF.Models.Data;
+﻿using LNF.Billing;
+using LNF.CommonTools;
+using LNF.Data;
 using sselResReports.AppCode;
 using System;
 using System.Configuration;
@@ -76,12 +77,12 @@ namespace sselResReports
             }
         }
 
-        protected void ddlTool_SelectedIndexChanged(object sender, EventArgs e)
+        protected void DdlTool_SelectedIndexChanged(object sender, EventArgs e)
         {
             DisplayUsage();
         }
 
-        protected void pp1_SelectedPeriodChanged(object sender, EventArgs e)
+        protected void Pp1_SelectedPeriodChanged(object sender, EventArgs e)
         {
             UpdateClient();
             DisplayUsage();
@@ -108,9 +109,9 @@ namespace sselResReports
 
             if (sDate <= DateTime.Now.Date && eDate > DateTime.Now.Date && !Convert.ToBoolean(Session["Updated"]))
             {
-                WriteData mWriteData = new WriteData();
-                string[] sTypes = new string[]{"Tool"};
-                //mWriteData.UpdateTable(sTypes, 0, 0, eDate, WriteData.UpdateDataType.CleanData)
+                WriteData mWriteData = new WriteData(Provider);
+                string[] types = new string[]{"Tool"};
+                mWriteData.UpdateTables(BillingCategory.Tool, UpdateDataType.DataClean);
                 Session["Updated"] = false;
             }
         }
@@ -129,7 +130,8 @@ namespace sselResReports
             if (sDate > DateTime.Now.Date) 
                 return;
 
-            DataTable dtToolUsage = ReadData.Tool.ReadToolDataClean(sDate, eDate, 0, int.Parse(ddlTool.SelectedValue));
+            DataSet ds = ReadData.Tool.ReadToolDataClean(sDate, eDate, 0, int.Parse(ddlTool.SelectedValue));
+            DataTable dtToolUsage = ds.Tables[0];
 
             if (dtToolUsage.Rows.Count == 0)
             {

@@ -1,4 +1,4 @@
-﻿<%@ Page Title="" Language="C#" MasterPageFile="~/ResReportsMaster.Master" AutoEventWireup="true" CodeBehind="index.aspx.cs" Inherits="sselResReports.index" %>
+﻿<%@ Page Title="" Language="C#" MasterPageFile="~/ResReportsMaster.Master" AutoEventWireup="true" CodeBehind="index.aspx.cs" Inherits="sselResReports.Index" %>
 
 <asp:Content ID="Content1" ContentPlaceHolderID="head" runat="server">
 </asp:Content>
@@ -74,7 +74,7 @@
             </tr>
             <tr>
                 <td>
-                    <asp:Button runat="server" ID="btnLogout" Width="209" CssClass="CommandButton" Text="Exit Application" OnClick="btnLogout_Click" />
+                    <asp:Button runat="server" ID="btnLogout" Width="209" CssClass="CommandButton" Text="Exit Application" OnClick="BtnLogout_Click" />
                 </td>
                 <td>&nbsp;</td>
                 <td>&nbsp;</td>

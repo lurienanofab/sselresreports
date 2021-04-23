@@ -1,13 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using System.Web.Routing;
-using System.Web.Security;
+﻿using LNF.Impl;
+using LNF.Web;
+using System;
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
-using sselResReports;
+using System.Linq;
+using System.Reflection;
+using System.Web;
+using System.Web.Compilation;
+using System.Web.Security;
 
 namespace sselResReports
 {
@@ -16,6 +17,17 @@ namespace sselResReports
         void Application_Start(object sender, EventArgs e)
         {
             // Code that runs on application startup
+
+            Assembly[] assemblies = BuildManager.GetReferencedAssemblies().Cast<Assembly>().ToArray();
+
+            // setup up dependency injection container
+            var wcc = new WebContainerConfiguration(WebApp.Current.Container);
+            wcc.EnablePropertyInjection();
+            wcc.RegisterAllTypes();
+
+            // setup web dependency injection
+            WebApp.Current.Bootstrap(assemblies);
+
             Application["AppServer"] = "/";
         }
 

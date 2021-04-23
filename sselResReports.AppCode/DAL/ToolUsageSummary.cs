@@ -1,13 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Data;
-using System.Data.SqlClient;
-using System.Configuration;
-using LNF.CommonTools;
+﻿using LNF;
+using LNF.Data;
+using LNF.Impl.Repository.Data;
 using LNF.Repository;
-using LNF.Repository.Data;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
 
 namespace sselResReports.AppCode.DAL
 {
@@ -17,126 +15,130 @@ namespace sselResReports.AppCode.DAL
         {
             DateTime sdate = new DateTime(year, month, 1);
             DateTime edate = sdate.AddMonths(numMonths);
-            using (SQLDBAccess dba = new SQLDBAccess("cnSselData"))
-            {
-                dba.SelectCommand
-                    .AddParameter("@Action", "ToolUsageSummary")
-                    .AddParameter("@ResourceID", resourceId)
-                    .AddParameter("@StartPeriod", sdate)
-                    .AddParameter("@EndPeriod", edate)
-                    .AddParameter("@ToolUsageSummaryOption", "Activated")
-                    .AddParameter("@AccountTypeIDs", selectedAccountTypes);
-                return dba.FillDataTable("ToolBilling_Select");
-            }
+
+            var dt = DataCommand.Create()
+                .Param("Action", "ToolUsageSummary")
+                .Param("ResourceID", resourceId)
+                .Param("StartPeriod", sdate)
+                .Param("EndPeriod", edate)
+                .Param("ToolUsageSummaryOption", "Activated")
+                .Param("AccountTypeIDs", selectedAccountTypes)
+                .FillDataTable("dbo.ToolBilling_Select");
+
+            return dt;
         }
 
         public static DataTable GetUnactivatedReservations(int month, int year, int numMonths, int resourceId, string selectedAccountTypes)
         {
             DateTime sdate = new DateTime(year, month, 1);
             DateTime edate = sdate.AddMonths(numMonths);
-            using (SQLDBAccess dba = new SQLDBAccess("cnSselData"))
-            {
-                dba.SelectCommand
-                    .AddParameter("@Action", "ToolUsageSummary")
-                    .AddParameter("@ResourceID", resourceId)
-                    .AddParameter("@StartPeriod", sdate)
-                    .AddParameter("@EndPeriod", edate)
-                    .AddParameter("@ToolUsageSummaryOption", "Unactivated")
-                    .AddParameter("@AccountTypeIDs", selectedAccountTypes);
-                return dba.FillDataTable("ToolBilling_Select");
-            }
 
+            var dt = DataCommand.Create()
+                .Param("Action", "ToolUsageSummary")
+                .Param("ResourceID", resourceId)
+                .Param("StartPeriod", sdate)
+                .Param("EndPeriod", edate)
+                .Param("ToolUsageSummaryOption", "Unactivated")
+                .Param("AccountTypeIDs", selectedAccountTypes)
+                .FillDataTable("dbo.ToolBilling_Select");
+
+            return dt;
         }
 
         public static DataTable GetForgivenReservations(int month, int year, int numMonths, int resourceId, string selectedAccountTypes)
         {
             DateTime sdate = new DateTime(year, month, 1);
             DateTime edate = sdate.AddMonths(numMonths);
-            using (SQLDBAccess dba = new SQLDBAccess("cnSselData"))
-            {
-                dba.SelectCommand
-                    .AddParameter("@Action", "ToolUsageSummary")
-                    .AddParameter("@ResourceID", resourceId)
-                    .AddParameter("@StartPeriod", sdate)
-                    .AddParameter("@EndPeriod", edate)
-                    .AddParameter("@ToolUsageSummaryOption", "Forgiven")
-                    .AddParameter("@AccountTypeIDs", selectedAccountTypes);
-                return dba.FillDataTable("ToolBilling_Select");
-            }
+
+            var dt = DataCommand.Create()
+                .Param("Action", "ToolUsageSummary")
+                .Param("ResourceID", resourceId)
+                .Param("StartPeriod", sdate)
+                .Param("EndPeriod", edate)
+                .Param("ToolUsageSummaryOption", "Forgiven")
+                .Param("AccountTypeIDs", selectedAccountTypes)
+                .FillDataTable("dbo.ToolBilling_Select");
+
+            return dt;
         }
 
         public static DataTable GetCombinedReservations(int month, int year, int numMonths, int resourceId, string selectedAccountTypes)
         {
             DateTime sdate = new DateTime(year, month, 1);
             DateTime edate = sdate.AddMonths(numMonths);
-            using (SQLDBAccess dba = new SQLDBAccess("cnSselData"))
-            {
-                dba.SelectCommand
-                    .AddParameter("@Action", "ToolUsageSummary")
-                    .AddParameter("@ResourceID", resourceId)
-                    .AddParameter("@StartPeriod", sdate)
-                    .AddParameter("@EndPeriod", edate)
-                    .AddParameter("@ToolUsageSummaryOption", "Combined")
-                    .AddParameter("@AccountTypeIDs", selectedAccountTypes);
-                return dba.FillDataTable("ToolBilling_Select");
-            }
+
+            var dt = DataCommand.Create()
+                .Param("Action", "ToolUsageSummary")
+                .Param("ResourceID", resourceId)
+                .Param("StartPeriod", sdate)
+                .Param("EndPeriod", edate)
+                .Param("ToolUsageSummaryOption", "Combined")
+                .Param("AccountTypeIDs", selectedAccountTypes)
+                .FillDataTable("dbo.ToolBilling_Select");
+
+            return dt;
         }
 
-        public static DataTable GetToolHourlyRateByPeriod(int Month, int Year, int NumMonths, int ResourceID)
+        public static DataTable GetToolHourlyRateByPeriod(int month, int year, int numMonths, int resourceId, IEnumerable<IChargeType> chargeTypes)
         {
-            DateTime sdate = new DateTime(Year, Month, 1);
-            DateTime edate = sdate.AddMonths(NumMonths);
-            string sql = "SELECT * FROM dbo.udf_GetToolHourlyRateByPeriod(@sdate, @edate, @ResourceID)";
-            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["cnSselData"].ConnectionString))
-            using (SqlCommand cmd = new SqlCommand(sql, conn))
-            using (SqlDataAdapter adap = new SqlDataAdapter(cmd))
+            DateTime sd = new DateTime(year, month, 1);
+            DateTime ed = sd.AddMonths(numMonths);
+            string sql = "SELECT * FROM dbo.udf_GetToolHourlyRateByPeriod(@sd, @ed, @ResourceID)";
+
+            var dt = DataCommand.Create(CommandType.Text)
+                .Param("sd", sd)
+                .Param("ed", ed)
+                .Param("ResourceID", resourceId)
+                .FillDataTable(sql);
+
+            DataTable result = new DataTable();
+            result.Columns.Add("ChargeTypeID", typeof(int));
+            result.Columns.Add("ChargeTypeName", typeof(string));
+
+            DateTime d = sd;
+            int index = 0;
+
+            while (d < ed)
             {
-                adap.SelectCommand.Parameters.AddWithValue("@sdate", sdate);
-                adap.SelectCommand.Parameters.AddWithValue("@edate", edate);
-                adap.SelectCommand.Parameters.AddWithValue("@ResourceID", ResourceID);
-
-                DataTable dt = new DataTable();
-                adap.Fill(dt);
-
-                DataTable result = new DataTable();
-                result.Columns.Add("ChargeTypeID", typeof(int));
-                result.Columns.Add("ChargeTypeName", typeof(string));
-                DateTime d = sdate;
-                int index = 0;
-                while (d < edate)
-                {
-                    result.Columns.Add(string.Format("PERIOD_{0}", index), typeof(double));
-                    index += 1;
-                    d = sdate.AddMonths(index);
-                }
-
-                var chargeTypes = DA.Current.Query<ChargeType>().ToArray();
-
-                foreach (ChargeType ct in chargeTypes)
-                {
-                    DataRow ndr = result.NewRow();
-                    ndr["ChargeTypeID"] = ct.ChargeTypeID;
-                    ndr["ChargeTypeName"] = ct.ChargeTypeName;
-                    d = sdate;
-                    index = 0;
-                    while (d < edate)
-                    {
-                        DataRow[] rows = dt.Select(string.Format("ChargeTypeID = {0} AND Period = '{1}'", ct.ChargeTypeID, d));
-                        if (rows.Length == 1)
-                        {
-                            DataRow dr = rows[0];
-                            ndr[string.Format("PERIOD_{0}", index)] = dr["HourlyRate"];
-                        }
-                        else
-                            throw new Exception(string.Format("There is more than one row for ChargeTypeID = {0} and Period = '{1}'", ct.ChargeTypeID, d));
-                        index += 1;
-                        d = sdate.AddMonths(index);
-                    }
-                    result.Rows.Add(ndr);
-                }
-
-                return result;
+                result.Columns.Add(string.Format("PERIOD_{0}", index), typeof(double));
+                index += 1;
+                d = sd.AddMonths(index);
             }
+
+            foreach (var ct in chargeTypes)
+            {
+                DataRow ndr = result.NewRow();
+                ndr["ChargeTypeID"] = ct.ChargeTypeID;
+                ndr["ChargeTypeName"] = ct.ChargeTypeName;
+
+                d = sd;
+                index = 0;
+
+                while (d < ed)
+                {
+                    DataRow[] rows = dt.Select($"ChargeTypeID = {ct.ChargeTypeID} AND Period = #{d}#");
+
+                    if (rows.Length == 0)
+                    {
+                        ndr[$"PERIOD_{index}"] = 0;
+                    }
+                    else if (rows.Length == 1)
+                    {
+                        DataRow dr = rows[0];
+                        ndr[$"PERIOD_{index}"] = dr["HourlyRate"];
+                    }
+                    else
+                        throw new Exception($"There is more than one row for ChargeTypeID = {ct.ChargeTypeID} and Period = #{d}#");
+
+                    index += 1;
+
+                    d = sd.AddMonths(index);
+                }
+
+                result.Rows.Add(ndr);
+            }
+
+            return result;
         }
     }
 }

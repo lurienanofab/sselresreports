@@ -1,8 +1,8 @@
-﻿using LNF.CommonTools;
-using LNF.Models.Data;
-using LNF.Repository;
-using LNF.Repository.Data;
-using LNF.Repository.Scheduler;
+﻿using LNF.Billing;
+using LNF.CommonTools;
+using LNF.Data;
+using LNF.Impl.Repository.Data;
+using LNF.Impl.Repository.Scheduler;
 using Newtonsoft.Json;
 using sselResReports.AppCode;
 using System;
@@ -71,7 +71,7 @@ namespace sselResReports
                 chkShowPercentOfTotal.Checked = GetQueryStringShowPercentage();
                 hidShowPercentOfTotal.Value = chkShowPercentOfTotal.Checked.ToString().ToLower();
 
-                ReportPage.CreateAccountCheckList(cblAccountType);
+                CreateAccountCheckList(cblAccountType);
                 var options = ReadReportOptionsFromCookie<ToolUtilizationOptions>(COOKIE_NAME);
                 ApplyOptions(options);
 
@@ -161,9 +161,8 @@ namespace sselResReports
 
             if (sDate <= DateTime.Now.Date && eDate > DateTime.Now.Date && !Convert.ToBoolean(Session["Updated"]))
             {
-                WriteData mWriteData = new WriteData();
-                string[] sTypes = new string[] { "Tool" };
-                //mWriteData.updateTable(sTypes, 0, 0, Now, WriteData.UpdateDataType.CleanData)
+                WriteData writeData = new WriteData(Provider);
+                writeData.UpdateTables(BillingCategory.Tool, UpdateDataType.DataClean);
                 Session["Updated"] = true;
             }
 
@@ -190,7 +189,7 @@ namespace sselResReports
 
             Dictionary<string, double> totalColumns = new Dictionary<string, double>();
 
-            activities = DA.Current.Query<Activity>().Where(x => x.IsActive).ToArray();
+            activities = DataSession.Query<Activity>().Where(x => x.IsActive).ToArray();
 
             totalColumns.Add("Lab", 0);
             totalColumns.Add("ProcessTech", 0);
@@ -332,7 +331,7 @@ namespace sselResReports
             return result;
         }
 
-        protected void btnReport_Click(object sender, EventArgs e)
+        protected void BtnReport_Click(object sender, EventArgs e)
         {
             if (AccountTypesAreValid())
             {
@@ -341,7 +340,7 @@ namespace sselResReports
             }
         }
 
-        protected void btnExport_Click(object sender, EventArgs e)
+        protected void BtnExport_Click(object sender, EventArgs e)
         {
             if (AccountTypesAreValid())
             {
@@ -362,7 +361,7 @@ namespace sselResReports
         {
             if (resInfoItems == null)
             {
-                resInfoItems = DA.Current.Query<ResourceInfo>().Where(x => x.IsActive).ToList();
+                resInfoItems = DataSession.Query<ResourceInfo>().Where(x => x.ResourceIsActive).ToList();
             }
         }
 
@@ -395,7 +394,7 @@ namespace sselResReports
             return val.ToString("#,##0.0") + (chkShowPercentOfTotal.Checked ? br + (val / totalHours / rowCount).ToString("(0.0%)") : string.Empty);
         }
 
-        protected void rptToolUtilizationReport_ItemDataBound(object sender, RepeaterItemEventArgs e)
+        protected void RptToolUtilizationReport_ItemDataBound(object sender, RepeaterItemEventArgs e)
         {
             if (e.Item.ItemType == ListItemType.Header)
             {
@@ -454,7 +453,7 @@ namespace sselResReports
 
         private ToolUtilizationOptions CreateOptions()
         {
-            var selectedAccountTypes = ReportPage.GetSelectedAccountTypes(cblAccountType);
+            var selectedAccountTypes = GetSelectedAccountTypes(cblAccountType);
 
             string statsBasedOn;
 
@@ -473,6 +472,17 @@ namespace sselResReports
                 ShowPercentage = chkShowPercentOfTotal.Checked
             };
         }
+
+        private ToolUtilizationOptions CreateOptions(IEnumerable<AccountType> items, string statsBasedOn, bool includeForgiven, bool showPercentage)
+        {
+            return new ToolUtilizationOptions()
+            {
+                AccountTypes = string.Join(",", DataSession.Query<AccountType>().ToArray().Select(x => x.AccountTypeID.ToString())),
+                StatsBasedOn = statsBasedOn,
+                IncludeForgiven = includeForgiven,
+                ShowPercentage = showPercentage
+            };
+        }
     }
 
     public class ToolUtilizationOptions
@@ -488,14 +498,5 @@ namespace sselResReports
 
         [JsonProperty("showPercentage")]
         public bool ShowPercentage { get; set; }
-
-        public ToolUtilizationOptions()
-        {
-            //defaults (note: this constructor must have no parameters)
-            StatsBasedOn = "charged";
-            AccountTypes = string.Join(",", DA.Current.Query<AccountType>().ToArray().Select(x=>x.AccountTypeID.ToString()));
-            IncludeForgiven = false;
-            ShowPercentage = false;
-        }
     }
 }

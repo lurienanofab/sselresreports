@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using LNF.PhysicalAccess;
-using LNF.Repository.Data;
+﻿using LNF.PhysicalAccess;
+using System;
 
 namespace sselResReports.AppCode
 {

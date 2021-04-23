@@ -10,7 +10,7 @@
 namespace sselResReports {
     
     
-    public partial class index {
+    public partial class Index {
         
         /// <summary>
         /// lblName control.

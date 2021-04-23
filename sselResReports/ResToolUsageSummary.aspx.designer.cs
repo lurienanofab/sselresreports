@@ -67,6 +67,33 @@ namespace sselResReports {
         protected global::System.Web.UI.WebControls.Button btnReport;
         
         /// <summary>
+        /// phAlert control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.PlaceHolder phAlert;
+        
+        /// <summary>
+        /// divAlert control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.HtmlControls.HtmlGenericControl divAlert;
+        
+        /// <summary>
+        /// litAlertText control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Literal litAlertText;
+        
+        /// <summary>
         /// btnBack control.
         /// </summary>
         /// <remarks>

@@ -1,4 +1,4 @@
-﻿using LNF.Models.Data;
+﻿using LNF.Data;
 using sselResReports.AppCode;
 using System;
 
@@ -16,7 +16,7 @@ namespace sselResReports
 
         }
 
-        protected void btnReport_Click(object sender, EventArgs e)
+        protected void BtnReport_Click(object sender, EventArgs e)
         {
             gvRes.DataSourceID = "odsRes";
             gvRes.DataBind();

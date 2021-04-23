@@ -36,14 +36,14 @@
                 <tr>
                     <td>Select room:</td>
                     <td>
-                        <asp:DropDownList runat="server" ID="ddlRoom" Height="24" AutoPostBack="true" OnSelectedIndexChanged="ddlRoom_SelectedIndexChanged" DataTextField="Room">
+                        <asp:DropDownList runat="server" ID="ddlRoom" Height="24" AutoPostBack="true" OnSelectedIndexChanged="DdlRoom_SelectedIndexChanged" DataTextField="Room">
                         </asp:DropDownList>
                         <span style="color: #BBBBBB;">&larr; Retrieve the data by changing room</span>
                     </td>
                 </tr>
             </table>
             <div class="criteria-item">
-                <asp:Button runat="server" ID="btnReport" Text="Refresh" OnClick="btnReport_Click" CssClass="report-button" />
+                <asp:Button runat="server" ID="btnReport" Text="Refresh" OnClick="BtnReport_Click" CssClass="report-button" />
             </div>
             <div class="criteria-item">
                 <asp:LinkButton runat="server" ID="btnBack" Text="&larr; Back to Main Page" OnClick="BackButton_Click" CssClass="back-link"></asp:LinkButton>

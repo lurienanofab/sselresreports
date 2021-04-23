@@ -10,13 +10,13 @@
                 <tr>
                     <td>Select period:</td>
                     <td>
-                        <lnf:PeriodPicker runat="server" ID="pp1" OnSelectedPeriodChanged="pp1_SelectedPeriodChanged" AutoPostBack="true" />
+                        <lnf:PeriodPicker runat="server" ID="pp1" OnSelectedPeriodChanged="Pp1_SelectedPeriodChanged" AutoPostBack="true" />
                     </td>
                 </tr>
                 <tr>
                     <td>Select tool:</td>
                     <td>
-                        <asp:DropDownList runat="server" ID="ddlTool" AutoPostBack="true" Height="24" OnSelectedIndexChanged="ddlTool_SelectedIndexChanged">
+                        <asp:DropDownList runat="server" ID="ddlTool" AutoPostBack="true" Height="24" OnSelectedIndexChanged="DdlTool_SelectedIndexChanged">
                         </asp:DropDownList>
                         <span style="color: #BBBBBB;">&larr; Retreive data by selecting tool</span>
                     </td>

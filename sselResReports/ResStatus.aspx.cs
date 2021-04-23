@@ -1,15 +1,11 @@
-﻿using LNF.Models.Data;
-using LNF.Repository;
-using LNF.Repository.Control;
-using LNF.Repository.Scheduler;
-using OnlineServices.Api.Control;
+﻿using LNF.Data;
+using LNF.Impl.Repository.Control;
+using LNF.Impl.Repository.Scheduler;
 using sselResReports.AppCode;
 using sselResReports.AppCode.DAL;
 using System;
 using System.Data;
 using System.Linq;
-using System.Threading.Tasks;
-using System.Web.UI;
 using System.Web.UI.WebControls;
 
 namespace sselResReports
@@ -35,8 +31,7 @@ namespace sselResReports
                 {
                     gvFuture.Visible = false;
                     dgToolStatus.Visible = true;
-                    //BindCurrentStatusTable();
-                    RegisterAsyncTask(new PageAsyncTask(FillCurrentStatusTable));
+                    FillCurrentStatusTable();
                 }
                 else
                 {
@@ -47,13 +42,13 @@ namespace sselResReports
             }
         }
 
-        private string GetResourceState(ResourceInfo item)
+        private string GetResourceState(ResourceTree item)
         {
             string[] resourceState = { "<i>Offline</i>", "<b>Online</b>", "Limited" };
-            return resourceState[item.State];
+            return resourceState[(int)item.State];
         }
 
-        private string GetCurrentActivity(ResourceInfo item)
+        private string GetCurrentActivity(ResourceTree item)
         {
             if (item.CurrentClientID == 0)
                 return "No activity at the present time";
@@ -66,7 +61,7 @@ namespace sselResReports
         private ActionInstance[] GetInstances()
         {
             if (_instances == null)
-                _instances = DA.Current.Query<ActionInstance>().ToArray();
+                _instances = DataSession.Query<ActionInstance>().ToArray();
             return _instances;
         }
 
@@ -80,68 +75,70 @@ namespace sselResReports
                 return 0;
         }
 
-        private async Task FillCurrentStatusTable()
+        private void FillCurrentStatusTable()
         {
-            using (var cc = new ControlClient())
+            //var mgr = new InterlockManager();
+            //var instances = mgr.GetAllActionInstances();
+
+            var query = DataSession.Query<ResourceTree>().Where(x => x.ClientID == CurrentUser.ClientID && x.ResourceIsActive).OrderBy(x => x.BuildingName).ThenBy(x => x.LabName).ThenBy(x => x.ProcessTechName).ThenBy(x => x.ResourceName).ToArray();
+
+            tblToolStatus.Rows.Clear();
+
+            int previousLab = 0;
+            int previousProcTech = 0;
+
+            TableRow row;
+
+            row = new TableRow() { CssClass = "GridHeader" };
+            row.Cells.Add(new TableCell() { Text = "Resource Name" });
+            row.Cells.Add(new TableCell() { Text = "Status" });
+            row.Cells.Add(new TableCell() { Text = "Current Activity" });
+            row.Cells.Add(new TableCell() { Text = "Interlock State" });
+            tblToolStatus.Rows.Add(row);
+
+            int r = 0;
+            foreach (var item in query)
             {
-                var instances = await cc.GetAllActionInstances();
+                if (item.LabID != previousLab)
+                {
+                    row = new TableRow
+                    {
+                        CssClass = "OutlineLevel1"
+                    };
+                    row.Cells.Add(new TableCell() { Text = item.LabName, ColumnSpan = 4, CssClass = "lab" });
+                    tblToolStatus.Rows.Add(row);
+                    previousLab = item.LabID;
+                }
 
-                var query = DA.Current.Query<ResourceInfo>().Where(x => x.IsActive).OrderBy(x => x.BuildingName).ThenBy(x => x.LabName).ThenBy(x => x.ProcessTechName).ThenBy(x => x.ResourceName).ToArray();
+                if (item.ProcessTechID != previousProcTech)
+                {
+                    row = new TableRow
+                    {
+                        CssClass = "OutlineLevel2"
+                    };
+                    row.Cells.Add(new TableCell() { Text = item.ProcessTechName, ColumnSpan = 4, CssClass = "proctech" });
+                    tblToolStatus.Rows.Add(row);
+                    previousProcTech = item.ProcessTechID;
+                }
 
-                tblToolStatus.Rows.Clear();
+                row = new TableRow();
 
-                int previousLab = 0;
-                int previousProcTech = 0;
+                if (r % 2 == 0)
+                    row.CssClass = "Item";
+                else
+                    row.CssClass = "AlternatingItem";
 
-                TableRow row;
+                row.Cells.Add(new TableCell() { Text = item.ResourceName, CssClass = "resource" });
+                row.Cells.Add(new TableCell() { Text = GetResourceState(item) });
+                row.Cells.Add(new TableCell() { Text = GetCurrentActivity(item) });
 
-                row = new TableRow() { CssClass = "GridHeader" };
-                row.Cells.Add(new TableCell() { Text = "Resource Name" });
-                row.Cells.Add(new TableCell() { Text = "Status" });
-                row.Cells.Add(new TableCell() { Text = "Current Activity" });
-                row.Cells.Add(new TableCell() { Text = "Interlock State" });
+                TableCell cell = new TableCell() { Text = "<img src=\"images/loader.gif\" alt=\"loading...\" />", CssClass = "status" };
+                cell.Attributes.Add("data-point", GetPoint(item.ResourceID).ToString());
+                row.Cells.Add(cell);
+
                 tblToolStatus.Rows.Add(row);
 
-                int r = 0;
-                foreach (var item in query)
-                {
-                    if (item.LabID != previousLab)
-                    {
-                        row = new TableRow();
-                        row.CssClass = "OutlineLevel1";
-                        row.Cells.Add(new TableCell() { Text = item.LabName, ColumnSpan = 4, CssClass = "lab" });
-                        tblToolStatus.Rows.Add(row);
-                        previousLab = item.LabID;
-                    }
-
-                    if (item.ProcessTechID != previousProcTech)
-                    {
-                        row = new TableRow();
-                        row.CssClass = "OutlineLevel2";
-                        row.Cells.Add(new TableCell() { Text = item.ProcessTechName, ColumnSpan = 4, CssClass = "proctech" });
-                        tblToolStatus.Rows.Add(row);
-                        previousProcTech = item.ProcessTechID;
-                    }
-
-                    row = new TableRow();
-
-                    if (r % 2 == 0)
-                        row.CssClass = "Item";
-                    else
-                        row.CssClass = "AlternatingItem";
-
-                    row.Cells.Add(new TableCell() { Text = item.ResourceName, CssClass = "resource" });
-                    row.Cells.Add(new TableCell() { Text = GetResourceState(item) });
-                    row.Cells.Add(new TableCell() { Text = GetCurrentActivity(item) });
-
-                    TableCell cell = new TableCell() { Text = "<img src=\"images/loader.gif\" alt=\"loading...\" />", CssClass = "status" };
-                    cell.Attributes.Add("data-point", GetPoint(item.ResourceID).ToString());
-                    row.Cells.Add(cell);
-
-                    tblToolStatus.Rows.Add(row);
-
-                    r++;
-                }
+                r++;
             }
         }
 
@@ -192,7 +189,7 @@ namespace sselResReports
         //    dgToolStatus.DataBind();
         //}
 
-        protected void dgToolStatus_ItemDataBound(object sender, DataGridItemEventArgs e)
+        protected void DgToolStatus_ItemDataBound(object sender, DataGridItemEventArgs e)
         {
             if (e.Item.ItemType == ListItemType.AlternatingItem || e.Item.ItemType == ListItemType.Item)
             {
@@ -235,13 +232,13 @@ namespace sselResReports
             }
         }
 
-        protected void ddlReportType_SelectedIndexChanged(object sender, EventArgs e)
+        protected void DdlReportType_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (ddlReportType.SelectedValue == "Current")
             {
                 gvFuture.Visible = false;
                 dgToolStatus.Visible = true;
-                RegisterAsyncTask(new PageAsyncTask(FillCurrentStatusTable));
+                FillCurrentStatusTable();
             }
             else
             {

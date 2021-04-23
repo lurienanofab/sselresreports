@@ -1,14 +1,14 @@
 ﻿using LNF;
-using OnlineServices.Api.Control;
 using System.Web;
 
-namespace sselResReports.ajax
+namespace sselResReports.Ajax
 {
     /// <summary>
     /// Summary description for index
     /// </summary>
-    public class index : IHttpHandler
+    public class Index : IHttpHandler
     {
+        [Inject] public IProvider Provider { get; set; }
 
         public void ProcessRequest(HttpContext context)
         {
@@ -21,31 +21,25 @@ namespace sselResReports.ajax
             switch (command)
             {
                 case "blocks":
-                    using (var cc = new ControlClient())
-                    {
-                        var blocks = cc.GetAllBlockStates().Result;
-                        result = new { Error = false, Message = string.Empty, Blocks = blocks };
-                    }
+                    var points = Provider.Control.GetToolStatus();
+                    result = new { Error = false, Message = string.Empty, Points = points };
                     break;
                 case "blockstate":
-                    using (var cc = new ControlClient())
+                    int blockId;
+                    if (int.TryParse(context.Request.QueryString["blockId"], out blockId))
                     {
-                        int blockId;
-                        if (int.TryParse(context.Request.QueryString["blockId"], out blockId))
-                        {
-                            var blockState = cc.GetBlockState(blockId).Result;
-                            result = new { Error = false, Message = string.Empty, BlockState = blockState };
-                        }
-                        else
-                            result = new { Error = true, Message = "Missing parameter blockId" };
+                        var blockState = Provider.Control.GetBlockState(blockId);
+                        result = new { Error = false, Message = string.Empty, BlockState = blockState };
                     }
+                    else
+                        result = new { Error = true, Message = "Missing parameter blockId" };
                     break;
                 default:
                     result = new { Error = true, Message = "Invalid command" };
                     break;
             }
 
-            context.Response.Write(Providers.Serialization.Json.SerializeObject(result));
+            context.Response.Write(Provider.Utility.Serialization.Json.SerializeObject(result));
         }
 
         public bool IsReusable

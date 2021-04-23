@@ -1,11 +1,11 @@
 ﻿using LNF.CommonTools;
-using LNF.Models.Data;
-using LNF.Repository;
-using LNF.Repository.Data;
+using LNF.Data;
+using LNF.Impl.Repository.Data;
 using Newtonsoft.Json;
 using sselResReports.AppCode;
 using sselResReports.AppCode.DAL;
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Text;
@@ -51,25 +51,34 @@ namespace sselResReports
 
             if (!Page.IsPostBack)
             {
-                ReportPage.CreateAccountCheckList(cblAccountType);
+                CreateAccountCheckList(cblAccountType);
                 var options = ReadReportOptionsFromCookie<ToolUsageSummaryOptions>(COOKIE_NAME); //ReportPage.ReadReportOptionsFromCookie(Request, cblAccountType, COOKIENAME);
                 ApplyOptions(options);
             }
         }
 
-        protected void btnReport_Click(object sender, EventArgs e)
+        protected void BtnReport_Click(object sender, EventArgs e)
         {
-            if (ddlTool.SelectedValue == "0")
-            {
-                throw new Exception("A tool must be selected");
-            }
-            else
-            {
-                GetSummary();
-                GetExportLinks();
-            }
+            ShowAlert(null);
 
-            WriteReportOptionsToCookie(CreateOptions(), COOKIE_NAME);
+            try
+            {
+                if (ddlTool.SelectedValue == "0")
+                {
+                    throw new Exception("A tool must be selected");
+                }
+                else
+                {
+                    GetSummary();
+                    GetExportLinks();
+                }
+
+                WriteReportOptionsToCookie(CreateOptions(), COOKIE_NAME);
+            }
+            catch (Exception ex)
+            {
+                ShowAlert(ex.Message);
+            }
         }
 
         protected void GetExportLinks()
@@ -92,10 +101,11 @@ namespace sselResReports
             int resourceId = int.Parse(ddlTool.SelectedValue);
             string resourceName = ddlTool.SelectedItem.Text;
 
-            string selectedAccountTypes = ReportPage.GetSelectedAccountTypes(cblAccountType);
+            string selectedAccountTypes = GetSelectedAccountTypes(cblAccountType);
 
+            var chargeTypes = Provider.Data.Cost.GetChargeTypes();
             DataTable dtCombined = ToolUsageSummary.GetCombinedReservations(month, year, numMonths, resourceId, selectedAccountTypes);
-            DataTable dtHourlyRates = ToolUsageSummary.GetToolHourlyRateByPeriod(month, year, numMonths, resourceId);
+            DataTable dtHourlyRates = ToolUsageSummary.GetToolHourlyRateByPeriod(month, year, numMonths, resourceId, chargeTypes);
 
             double totalUses = Utility.ConvertTo(dtCombined.Compute("SUM(TotalUses)", string.Empty), 0D);
             double totalSchedHours = Utility.ConvertTo(dtCombined.Compute("SUM(TotalSchedHours)", string.Empty), 0D);
@@ -328,7 +338,7 @@ namespace sselResReports
             return sb.ToString();
         }
 
-        protected void gvActivated_RowDataBound(object sender, GridViewRowEventArgs e)
+        protected void GvActivated_RowDataBound(object sender, GridViewRowEventArgs e)
         {
             if (e.Row.RowType == DataControlRowType.DataRow)
             {
@@ -380,7 +390,7 @@ namespace sselResReports
             }
         }
 
-        protected void gvUnactivated_RowDataBound(object sender, GridViewRowEventArgs e)
+        protected void GvUnactivated_RowDataBound(object sender, GridViewRowEventArgs e)
         {
             if (e.Row.RowType == DataControlRowType.DataRow)
             {
@@ -419,7 +429,7 @@ namespace sselResReports
             }
         }
 
-        protected void gvForgiven_RowDataBound(object sender, GridViewRowEventArgs e)
+        protected void GvForgiven_RowDataBound(object sender, GridViewRowEventArgs e)
         {
             if (e.Row.RowType == DataControlRowType.DataRow)
             {
@@ -434,100 +444,111 @@ namespace sselResReports
             }
         }
 
-        protected void gvActivated_DataBound(object sender, EventArgs e)
+        protected void GvActivated_DataBound(object sender, EventArgs e)
         {
             if (gvActivated.Rows.Count > 0 && gvActivated.Rows[0].RowType != DataControlRowType.EmptyDataRow)
             {
                 GridViewRow row = new GridViewRow(0, -1, DataControlRowType.Header, DataControlRowState.Normal);
-                TableCell cell;
 
-                cell =new TableHeaderCell();
-                cell.ColumnSpan = 3;
-                cell.CssClass = "edge";
-                row.Cells.Add(cell);
+                row.Cells.Add(new TableHeaderCell
+                {
+                    ColumnSpan = 3,
+                    CssClass = "edge"
+                });
 
-                cell = new TableHeaderCell();
-                cell.ColumnSpan = 2;
-                cell.Text = "Duration Hours";
-                cell.CssClass = "edge";
-                row.Cells.Add(cell);
+                row.Cells.Add(new TableHeaderCell
+                {
+                    ColumnSpan = 2,
+                    Text = "Duration Hours",
+                    CssClass = "edge"
+                });
 
-                cell = new TableHeaderCell();
-                cell.ColumnSpan = 3;
-                cell.Text = "Normal Hours";
-                cell.CssClass = "edge hours";
-                row.Cells.Add(cell);
+                row.Cells.Add(new TableHeaderCell
+                {
+                    ColumnSpan = 3,
+                    Text = "Normal Hours",
+                    CssClass = "edge hours"
+                });
 
-                cell = new TableHeaderCell();
-                cell.ColumnSpan = 3;
-                cell.Text = "Over Time Hours";
-                cell.CssClass = "edge hours";
-                row.Cells.Add(cell);
+                row.Cells.Add(new TableHeaderCell
+                {
+                    ColumnSpan = 3,
+                    Text = "Over Time Hours",
+                    CssClass = "edge hours"
+                });
 
-                cell = new TableHeaderCell();
-                cell.ColumnSpan = 3;
-                cell.Text = "Normal Amount";
-                cell.CssClass = "edge amount";
-                row.Cells.Add(cell);
+                row.Cells.Add(new TableHeaderCell
+                {
+                    ColumnSpan = 3,
+                    Text = "Normal Amount",
+                    CssClass = "edge amount"
+                });
 
-                cell = new TableHeaderCell();
-                cell.ColumnSpan = 3;
-                cell.Text = "Over Time Amount";
-                cell.CssClass = "edge amount";
-                row.Cells.Add(cell);
+                row.Cells.Add(new TableHeaderCell
+                {
+                    ColumnSpan = 3,
+                    Text = "Over Time Amount",
+                    CssClass = "edge amount"
+                });
 
-                cell = new TableHeaderCell();
-                cell.ColumnSpan = 3;
-                cell.Text = "Billed Amount";
-                cell.CssClass = "edge";
-                row.Cells.Add(cell);
+                row.Cells.Add(new TableHeaderCell
+                {
+                    ColumnSpan = 3,
+                    Text = "Billed Amount",
+                    CssClass = "edge"
+                });
 
                 Table table = (Table)gvActivated.Controls[0];
                 if (table != null) table.Rows.AddAt(0, row);
             }
         }
 
-        protected void gvUnactivated_DataBound(object sender, EventArgs e)
+        protected void GvUnactivated_DataBound(object sender, EventArgs e)
         {
             if (gvUnactivated.Rows.Count > 0 && gvUnactivated.Rows[0].RowType != DataControlRowType.EmptyDataRow)
             {
                 GridViewRow row = new GridViewRow(0, -1, DataControlRowType.Header, DataControlRowState.Normal);
-                TableCell cell;
 
-                cell = new TableHeaderCell();
-                cell.ColumnSpan = 3;
-                cell.CssClass = "edge";
-                row.Cells.Add(cell);
+                row.Cells.Add(new TableHeaderCell
+                {
+                    ColumnSpan = 3,
+                    CssClass = "edge"
+                });
 
-                cell = new TableHeaderCell();
-                cell.ColumnSpan = 1;
-                cell.Text = "Duration Hours";
-                cell.CssClass = "edge";
-                row.Cells.Add(cell);
+                row.Cells.Add(new TableHeaderCell
+                {
+                    ColumnSpan = 1,
+                    Text = "Duration Hours",
+                    CssClass = "edge"
+                });
 
-                cell = new TableHeaderCell();
-                cell.ColumnSpan = 3;
-                cell.Text = "Normal Hours";
-                cell.CssClass = "edge hours";
-                row.Cells.Add(cell);
+                row.Cells.Add(new TableHeaderCell
+                {
+                    ColumnSpan = 3,
+                    Text = "Normal Hours",
+                    CssClass = "edge hours"
+                });
 
-                cell = new TableHeaderCell();
-                cell.ColumnSpan = 3;
-                cell.Text = "Normal Amount";
-                cell.CssClass = "edge amount";
-                row.Cells.Add(cell);
+                row.Cells.Add(new TableHeaderCell
+                {
+                    ColumnSpan = 3,
+                    Text = "Normal Amount",
+                    CssClass = "edge amount"
+                });
 
-                cell = new TableHeaderCell();
-                cell.ColumnSpan = 3;
-                cell.Text = "Booking Fee";
-                cell.CssClass = "edge";
-                row.Cells.Add(cell);
+                row.Cells.Add(new TableHeaderCell
+                {
+                    ColumnSpan = 3,
+                    Text = "Booking Fee",
+                    CssClass = "edge"
+                });
 
-                cell = new TableHeaderCell();
-                cell.ColumnSpan = 3;
-                cell.Text = "Billed Amount";
-                cell.CssClass = "edge";
-                row.Cells.Add(cell);
+                row.Cells.Add(new TableHeaderCell
+                {
+                    ColumnSpan = 3,
+                    Text = "Billed Amount",
+                    CssClass = "edge"
+                });
 
                 Table table = (Table)gvUnactivated.Controls[0];
                 if (table != null) table.Rows.AddAt(0, row);
@@ -546,12 +567,34 @@ namespace sselResReports
 
         private ToolUsageSummaryOptions CreateOptions()
         {
-            var selectedAccountTypes = ReportPage.GetSelectedAccountTypes(cblAccountType);
+            var selectedAccountTypes = GetSelectedAccountTypes(cblAccountType);
 
             return new ToolUsageSummaryOptions()
             {
                 AccountTypes = selectedAccountTypes
             };
+        }
+
+        // This replaces a constructor that set the AccountTypes property using LNF.DataAccess.ISession. It doesn't seem to ever be used so
+        // it's an extra dependency that is no longer needed. This function is here for historical reference.
+        private ToolUsageSummaryOptions ToolUsageSummaryOptions(IEnumerable<AccountType> items)
+        {
+            return new ToolUsageSummaryOptions
+            {
+                AccountTypes = string.Join(",", DataSession.Query<AccountType>().ToArray().Select(x => x.AccountTypeID.ToString()))
+            };
+        }
+
+        private void ShowAlert(string msg, string type = "danger")
+        {
+            if (string.IsNullOrEmpty(msg))
+                phAlert.Visible = false;
+            else
+            {
+                divAlert.Attributes["class"] = $"alert alert-{type}";
+                litAlertText.Text = msg;
+                phAlert.Visible = true;
+            }
         }
     }
 
@@ -559,11 +602,5 @@ namespace sselResReports
     {
         [JsonProperty("accountTypes")]
         public string AccountTypes { get; set; }
-
-        public ToolUsageSummaryOptions()
-        {
-            //defaults (note: this constructor must have no parameters)
-            AccountTypes = string.Join(",", DA.Current.Query<AccountType>().ToArray().Select(x => x.AccountTypeID.ToString()));
-        }
     }
 }

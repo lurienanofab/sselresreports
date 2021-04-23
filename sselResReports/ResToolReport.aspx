@@ -10,7 +10,7 @@
                 <tr>
                     <td>Tools:</td>
                     <td>
-                        <asp:DropDownList runat="server" ID="ddlTool" DataTextField="Text" DataValueField="Value" AutoPostBack="True" Height="24">
+                        <asp:DropDownList runat="server" ID="ddlTool" DataTextField="Text" DataValueField="Value" AutoPostBack="True" Height="24" OnSelectedIndexChanged="DdlTool_SelectedIndexChanged">
                         </asp:DropDownList>
                         <span style="color: #BBBBBB;">&larr; Retrieve data by selecting tool</span>
                     </td>

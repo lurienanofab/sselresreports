@@ -1,6 +1,24 @@
 ﻿<%@ Page Title="" Language="C#" MasterPageFile="~/ResReportsMaster.Master" AutoEventWireup="true" CodeBehind="ResToolUsageSummary.aspx.cs" Inherits="sselResReports.ResToolUsageSummary" %>
 
 <asp:Content ID="Content1" ContentPlaceHolderID="head" runat="server">
+    <style>
+        .alert {
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 1px solid transparent;
+            border-top-color: transparent;
+            border-right-color: transparent;
+            border-bottom-color: transparent;
+            border-left-color: transparent;
+            border-radius: 4px;
+        }
+
+        .alert-danger {
+            color: #a94442;
+            background-color: #f2dede;
+            border-color: #ebccd1;
+        }
+    </style>
     <script>
         function validate() {
             $(".account-types-message").html("");
@@ -50,8 +68,13 @@
                 </tr>
                 <tr>
                     <td colspan="2">
-                        <asp:Button runat="server" ID="btnReport" Text="Retrieve Data" OnClick="btnReport_Click" CssClass="report-button" OnClientClick="return validate();" />
+                        <asp:Button runat="server" ID="btnReport" Text="Retrieve Data" OnClick="BtnReport_Click" CssClass="report-button" OnClientClick="return validate();" />
                         <span style="color: #bbbbbb;">&larr; You must click here to retrieve the data</span><br />
+                        <asp:PlaceHolder runat="server" ID="phAlert" Visible="false">
+                            <div runat="server" id="divAlert" class="alert alert-danger" role="alert" style="margin-bottom: 0; margin-top: 10px;">
+                                <asp:Literal runat="server" ID="litAlertText"></asp:Literal>
+                            </div>
+                        </asp:PlaceHolder>
                     </td>
                 </tr>
                 <tr>
@@ -205,7 +228,7 @@
     </asp:Panel>
     <div class="section activated detail-parent">
         <h3>Activated Reservations</h3>
-        <asp:GridView runat="server" ID="gvActivated" DataSourceID="odsActivated" AutoGenerateColumns="false" AllowSorting="true" OnRowDataBound="gvActivated_RowDataBound" OnDataBound="gvActivated_DataBound" GridLines="None" CssClass="gridview highlight">
+        <asp:GridView runat="server" ID="gvActivated" DataSourceID="odsActivated" AutoGenerateColumns="false" AllowSorting="true" OnRowDataBound="GvActivated_RowDataBound" OnDataBound="GvActivated_DataBound" GridLines="None" CssClass="gridview highlight">
             <HeaderStyle CssClass="header" />
             <RowStyle CssClass="row" />
             <AlternatingRowStyle CssClass="altrow" />
@@ -269,7 +292,7 @@
     </div>
     <div class="section unactivated detail-parent">
         <h3>Unactivated Reservations</h3>
-        <asp:GridView ID="gvUnactivated" runat="server" DataSourceID="odsUnactivated" AutoGenerateColumns="false" AllowSorting="true" OnRowDataBound="gvUnactivated_RowDataBound" OnDataBound="gvUnactivated_DataBound" GridLines="None" CssClass="gridview highlight">
+        <asp:GridView ID="gvUnactivated" runat="server" DataSourceID="odsUnactivated" AutoGenerateColumns="false" AllowSorting="true" OnRowDataBound="GvUnactivated_RowDataBound" OnDataBound="GvUnactivated_DataBound" GridLines="None" CssClass="gridview highlight">
             <HeaderStyle CssClass="header" />
             <RowStyle CssClass="row" />
             <AlternatingRowStyle CssClass="altrow" />
@@ -326,7 +349,7 @@
     </div>
     <div class="section forgiven">
         <h3>Forgiven Reservations</h3>
-        <asp:GridView ID="gvForgiven" runat="server" DataSourceID="odsForgiven" AutoGenerateColumns="false" AllowSorting="true" OnRowDataBound="gvForgiven_RowDataBound" GridLines="None" CssClass="gridview highlight">
+        <asp:GridView ID="gvForgiven" runat="server" DataSourceID="odsForgiven" AutoGenerateColumns="false" AllowSorting="true" OnRowDataBound="GvForgiven_RowDataBound" GridLines="None" CssClass="gridview highlight">
             <HeaderStyle CssClass="header" />
             <RowStyle CssClass="row" />
             <AlternatingRowStyle CssClass="altrow" />

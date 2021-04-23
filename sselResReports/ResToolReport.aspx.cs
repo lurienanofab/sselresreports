@@ -1,4 +1,4 @@
-﻿using LNF.Models.Data;
+﻿using LNF.Data;
 using sselResReports.AppCode;
 using sselResReports.AppCode.DAL;
 using System;
@@ -28,7 +28,7 @@ namespace sselResReports
         private List<ListItem> GetTools()
         {
             List<ListItem> items = new List<ListItem>();
-            using (IDataReader reader = SchedulerTool.GetAllToolsFromScheduler())
+            using (var reader = SchedulerTool.GetAllToolsFromScheduler())
             {
                 while (reader.Read())
                     items.Add(new ListItem(reader["ResourceName"].ToString(), reader["ResourceID"].ToString()));
@@ -39,7 +39,7 @@ namespace sselResReports
             return result;
         }
 
-        protected void ddlTool_SelectedIndexChanged(object sender, EventArgs e)
+        protected void DdlTool_SelectedIndexChanged(object sender, EventArgs e)
         {
             DateTime d = DateTime.Now.AddMonths(-1);
             DataTable dtRes = ReservationDA.GetReservationsByResourceIDAndDate(Convert.ToInt32(ddlTool.SelectedValue), d);

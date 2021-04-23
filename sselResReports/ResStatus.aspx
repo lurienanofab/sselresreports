@@ -1,4 +1,4 @@
-﻿<%@ Page Title="Tool Status" Language="C#" MasterPageFile="~/ResReportsMaster.Master" AutoEventWireup="true" CodeBehind="ResStatus.aspx.cs" Inherits="sselResReports.ResStatus" Async="true" %>
+﻿<%@ Page Title="Tool Status" Language="C#" MasterPageFile="~/ResReportsMaster.Master" AutoEventWireup="true" CodeBehind="ResStatus.aspx.cs" Inherits="sselResReports.ResStatus" %>
 
 <asp:Content ID="Content1" ContentPlaceHolderID="head" runat="server">
     <style>
@@ -24,10 +24,18 @@
                     text-align: center;
                 }
 
-                .tool-status td.status.pending{
-                    color: #999;
-                    font-style: italic;
-                }
+                    .tool-status td.status.pending {
+                        color: #999;
+                        font-style: italic;
+                    }
+
+                    .tool-status td.status.tool-on {
+                        color: #008000;
+                    }
+
+                    .tool-status td.status.tool-off {
+                        color: #800000;
+                    }
     </style>
 </asp:Content>
 <asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolder1" runat="server">
@@ -38,7 +46,7 @@
                 <tr>
                     <td>Report type:</td>
                     <td>
-                        <asp:DropDownList runat="server" ID="ddlReportType" Height="24" AutoPostBack="true" OnSelectedIndexChanged="ddlReportType_SelectedIndexChanged">
+                        <asp:DropDownList runat="server" ID="ddlReportType" Height="24" AutoPostBack="true" OnSelectedIndexChanged="DdlReportType_SelectedIndexChanged">
                             <asp:ListItem Value="Current" Text="Current Tool Status"></asp:ListItem>
                             <asp:ListItem Value="Future" Text="Tool Repair/Maintenance 7 Days In Advance"></asp:ListItem>
                         </asp:DropDownList>
@@ -56,7 +64,7 @@
         <asp:Table runat="server" ID="tblToolStatus" CssClass="tool-status outline">
         </asp:Table>
 
-        <asp:DataGrid runat="server" ID="dgToolStatus" AutoGenerateColumns="false" CssClass="outline" OnItemDataBound="dgToolStatus_ItemDataBound">
+        <asp:DataGrid runat="server" ID="dgToolStatus" AutoGenerateColumns="false" CssClass="outline" OnItemDataBound="DgToolStatus_ItemDataBound">
             <HeaderStyle CssClass="GridHeader" />
             <Columns>
                 <asp:TemplateColumn HeaderText="Resource Name">
@@ -105,24 +113,29 @@
     </div>
 
     <script>
-
         var getBlocks = function () {
             $.ajax({
-                "url": "ajax/?command=blocks",
-                "success": function (data) {
-                    $("td.status").addClass("pending");
+                "url": "ajax/?command=blocks"
+            }).done(function (data) {
+                $("td.status").addClass("pending").removeClass("tool-on tool-off");
 
-                    $.each(data.Blocks, function (index, block) {
-                        $.each(block.Points, function (index, point) {
-                            $("td.status[data-point='" + point.PointID + "']").html(point.State ? "Tool On" : "Tool Off").removeClass("pending");
-                        });
-                    });
-                    
-                    $("td.status.pending").html("No Interlock");
-                }
-            })
-        }
+                $.each(data.Points, function (i, point) {
+                    var td = $("td.status[data-point='" + point.PointID + "']");
+                    if (point.InterlockState){
+                        td.html("Tool On");
+                        td.addClass("tool-on");
+                        td.removeClass("tool-off");
+                    }else{
+                        td.html("Tool Off");
+                        td.addClass("tool-off");
+                        td.removeClass("tool-on");
+                    }
+                    td.removeClass("pending");
+                });
 
+                $("td.status.pending").html("No Interlock");
+            });
+        };
 
         getBlocks();
     </script>

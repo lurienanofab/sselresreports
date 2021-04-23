@@ -1,4 +1,4 @@
-﻿using LNF.Models.Data;
+﻿using LNF.Data;
 using sselResReports.AppCode;
 using System;
 using System.Collections.Generic;
@@ -6,7 +6,7 @@ using System.Web.UI.WebControls;
 
 namespace sselResReports
 {
-    public partial class index : sselResReports.AppCode.ReportPage
+    public partial class Index : ReportPage
     {
         Dictionary<Button, ReportPage> appPages = new Dictionary<Button, ReportPage>();
 
@@ -34,9 +34,8 @@ namespace sselResReports
                 // check to see if session is valid
                 if (Request.QueryString.Count > 0) // probably coming from sselOnLine
                 {
-                    int clientId;
                     string strClientID = Request.QueryString["ClientID"] ?? string.Empty;
-                    if (int.TryParse(strClientID.Trim(), out clientId) && Session["ClientID"] != null)
+                    if (int.TryParse(strClientID.Trim(), out int clientId) && Session["ClientID"] != null)
                     {
                         if (Convert.ToInt32(Session["ClientID"]) != clientId)
                         {
@@ -78,7 +77,7 @@ namespace sselResReports
             Response.Redirect(RedirectPage);
         }
 
-        protected void btnLogout_Click(object sender, EventArgs e)
+        protected void BtnLogout_Click(object sender, EventArgs e)
         {
             Cache.Remove(Session["Cache"].ToString());
             Session.Abandon();

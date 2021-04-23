@@ -1,8 +1,6 @@
 ﻿using LNF.Data;
-using LNF.Models.Data;
-using LNF.Repository;
-using LNF.Repository.Billing;
-using LNF.Repository.Data;
+using LNF.Impl.Repository.Billing;
+using LNF.Impl.Repository.Data;
 using sselResReports.AppCode;
 using System;
 using System.Collections.Generic;
@@ -91,9 +89,9 @@ namespace sselResReports
             DateTime sDate = DateTime.Parse(txtStartDate.Text);
             DateTime eDate = sDate.AddDays(int.Parse(txtNumDays.Text));
 
-            Room room = DA.Current.Query<Room>().FirstOrDefault(x => x.RoomID == int.Parse(ddlRoom.SelectedValue));
+            Room room = DataSession.Query<Room>().FirstOrDefault(x => x.RoomID == int.Parse(ddlRoom.SelectedValue));
 
-            RoomDataImport[] query = DA.Current.Query<RoomDataImport>().Where(x => x.EventDate >= sDate && x.EventDate < eDate && x.RoomName == room.RoomName).ToArray();
+            RoomDataImport[] query = DataSession.Query<RoomDataImport>().Where(x => x.EventDate >= sDate && x.EventDate < eDate && x.RoomName == room.RoomName).ToArray();
 
             //this is used to handle cases where they entered before the start date
             Dictionary<int, DateTime> entries = new Dictionary<int, DateTime>();
@@ -128,8 +126,11 @@ namespace sselResReports
                         else
                         {
                             //add a new time slot and add this client to the slot
-                            List<int> clients = new List<int>();
-                            clients.Add(item.ClientID);
+                            List<int> clients = new List<int>
+                            {
+                                item.ClientID
+                            };
+
                             htUsage.Add(sDate, clients);
                         }
 
@@ -149,8 +150,11 @@ namespace sselResReports
                     else
                     {
                         //add a new time slot and add this client to the slot
-                        List<int> clients = new List<int>();
-                        clients.Add(item.ClientID);
+                        List<int> clients = new List<int>
+                        {
+                            item.ClientID
+                        };
+
                         htUsage.Add(eventDate, clients);
                     }
                 }
@@ -163,8 +167,11 @@ namespace sselResReports
                     }
                     else
                     {
-                        List<int> clients = new List<int>();
-                        clients.Add(-1 * item.ClientID);
+                        List<int> clients = new List<int>
+                        {
+                            -1 * item.ClientID
+                        };
+
                         htUsage.Add(eventDate, clients);
                     }
                 }
@@ -215,7 +222,7 @@ namespace sselResReports
             dgInLab.DataBind();
         }
 
-        protected void dgInLab_ItemDataBound(object sender, DataGridItemEventArgs e)
+        protected void DgInLab_ItemDataBound(object sender, DataGridItemEventArgs e)
         {
             if (e.Item.ItemType == ListItemType.Item || e.Item.ItemType == ListItemType.AlternatingItem)
             {
@@ -236,7 +243,7 @@ namespace sselResReports
             }
         }
 
-        protected void btnReport_Click(object sender, EventArgs e)
+        protected void BtnReport_Click(object sender, EventArgs e)
         {
             ShowUsersInLab();
         }
